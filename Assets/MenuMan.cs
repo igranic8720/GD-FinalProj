@@ -30,6 +30,13 @@ public class MenuMan : MonoBehaviour
 
     public void OpenMenu(Menu menu)
     {
+        for (int i = 0; i < menus.Length; i++)
+        {
+            if (menus[i].isOpen)
+            {
+                CloseMenu(menus[i]);
+            }
+        }
         menu.open();
     }
 
