@@ -620,6 +620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemInfo: {fileID: 11400000, guid: 907a80c09f8a3be47a4e937531302f14, type: 2}
   itemGameObject: {fileID: 3470398453535869141}
+  cam: {fileID: 238367127169876692}
 --- !u!1 &6512344697730026753
 GameObject:
   m_ObjectHideFlags: 0
@@ -666,6 +667,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemInfo: {fileID: 11400000, guid: f656736333cd5f14d898d6155a747bb7, type: 2}
   itemGameObject: {fileID: 2556214654912590807}
+  cam: {fileID: 238367127169876692}
 --- !u!1 &6997525082941705088
 GameObject:
   m_ObjectHideFlags: 0
