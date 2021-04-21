@@ -19,7 +19,7 @@ public class MenuMan : MonoBehaviour
         {
             if (menus[i].menuName == menu)
             {
-                OpenMenu(menus[i]);
+                menus[i].open();
             }
             else if (menus[i].isOpen)
             {
