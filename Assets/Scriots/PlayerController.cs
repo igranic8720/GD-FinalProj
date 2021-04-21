@@ -82,6 +82,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            items[itemIndex].Use();
+        }
     }
     void FixedUpdate()
     {
@@ -130,8 +134,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (PV.IsMine)
         {
-            Hashtable hash = new Hashtable();
-            hash.Add("itemIndex", itemIndex);
+            Hashtable hash = new Hashtable
+            {
+                { "itemIndex", itemIndex }
+            };
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
         }
     }
