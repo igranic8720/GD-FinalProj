@@ -17,6 +17,7 @@ public class SingleShotGun : Gun
     public override void Use()
     {
         Shoot();
+        FireEffects();
     }
 
     void Shoot()
@@ -30,7 +31,7 @@ public class SingleShotGun : Gun
             PV.RPC("RPC_Shoot", RpcTarget.All, hit.point, hit.normal);
         }
     }
-
+    
     [PunRPC]
     void RPC_Shoot(Vector3 hitPosition, Vector3 hitNormal)
     {
