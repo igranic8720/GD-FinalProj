@@ -58,7 +58,9 @@ public class Launcher : MonoBehaviourPunCallbacks
         {
             return;
         }
-        PhotonNetwork.CreateRoom(roomNameInputField.text);
+        RoomOptions roomOpt = new RoomOptions();
+        roomOpt.MaxPlayers = 2;
+        PhotonNetwork.CreateRoom(roomNameInputField.text, roomOpt, null);
         MenuMan.Instance.OpenMenu("loading");
     }
 
@@ -124,7 +126,12 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.JoinRoom(info.Name);
         MenuMan.Instance.OpenMenu("loading");
+    }
 
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        MenuMan.Instance.OpenMenu("error");
+        errorText.text = message;
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -135,5 +142,10 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         PhotonNetwork.LoadLevel(1);
+    }
+
+    public void exitClient()
+    {
+        Application.Quit();
     }
 }
