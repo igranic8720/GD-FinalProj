@@ -19,7 +19,7 @@ public class MenuMan : MonoBehaviour
         {
             if (menus[i].menuName == menu)
             {
-                OpenMenu(menus[i]);
+                menus[i].open();
             }
             else if (menus[i].isOpen)
             {
@@ -30,6 +30,13 @@ public class MenuMan : MonoBehaviour
 
     public void OpenMenu(Menu menu)
     {
+        for (int i = 0; i < menus.Length; i++)
+        {
+            if (menus[i].isOpen)
+            {
+                CloseMenu(menus[i]);
+            }
+        }
         menu.open();
     }
 
