@@ -4,15 +4,26 @@ using UnityEngine;
 
 public class DoorScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private Animator animator;
+
+    private void Start()
     {
-        
+        animator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject py in objects)
+        {
+            if (Vector3.Distance(py.transform.position, transform.position) <= 4f)
+            {
+                animator.SetBool("character_nearby", true);
+            }
+            else
+            {
+                animator.SetBool("character_nearby", false);
+            }
+        }
     }
 }
