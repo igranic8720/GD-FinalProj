@@ -9,6 +9,11 @@ public class SingleShotGun : Gun
 
     private PhotonView PV;
 
+    void Awake()
+    {
+        PV = GetComponent<PhotonView>();
+    }
+
     public override void Use()
     {
         Shoot();
