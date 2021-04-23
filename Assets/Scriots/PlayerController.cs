@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -13,7 +14,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] private GameObject cameraHolder;
     [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] private Item[] items;
-
+    [SerializeField] private Text playerDeathCounter;
+    
     private int itemIndex;
     private int previousItemIndex = -1;
 
@@ -46,6 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             EquipItem(0);
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+            playerDeathCounter.text = "0 : 0";
         }
         else
         {
@@ -105,7 +108,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             Die();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
+        if (Input.GetKeyDown(KeyCode.Q)) EndGame();
     }
     void FixedUpdate()
     {
@@ -194,8 +197,60 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    void EndGame()
+    {
+        if (PhotonNetwork.IsMasterClient) PhotonNetwork.DestroyAll();
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene(0);
+    }
+
     void Die()
     {
+        playerManager.playerDeaths++;
+
+        Hashtable hash = new Hashtable
+        {
+            { "playerDeaths", playerManager.playerDeaths }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+
+        PV.RPC("RPC_Respawn", RpcTarget.Others);
+
         playerManager.Die();
+        Player[] players = PhotonNetwork.PlayerList;
+        foreach (Player pl in players)
+        {
+            if (!pl.IsLocal) playerDeathCounter.text = playerManager.playerDeaths + " : " + (int)pl.CustomProperties["playerDeaths"];
+        }
     }
+
+    [PunRPC]
+    void RPC_Respawn()
+    {
+        GameObject[] go = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var v in go)
+        {
+            if (v.GetComponent<PhotonView>().IsMine)
+            {
+                PhotonNetwork.Destroy(v);
+                playerManager.CreateController();
+                GameObject[] go2 = GameObject.FindGameObjectsWithTag("Player");
+                foreach (var v2 in go2)
+                {
+                    Player[] players = PhotonNetwork.PlayerList;
+                    foreach (Player pl in players)
+                    {
+                        if (!pl.IsLocal && v2.GetComponent<PhotonView>().IsMine)
+                        {
+                            v2.GetComponent<PlayerController>().playerDeathCounter.text = playerManager.playerDeaths + " : " + (int)pl.CustomProperties["playerDeaths"];
+                        }  
+                    }
+                }
+
+                break;
+            }
+        }
+        
+    }
+
 }
