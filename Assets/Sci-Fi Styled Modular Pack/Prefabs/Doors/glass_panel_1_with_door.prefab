@@ -110,8 +110,8 @@ GameObject:
   - component: {fileID: 9575016}
   - component: {fileID: 6452128}
   - component: {fileID: 7104115437141861608}
-  - component: {fileID: 4789549335924532751}
-  - component: {fileID: 8550196517075932063}
+  - component: {fileID: 1824733146715421807}
+  - component: {fileID: 5941506010261094935}
   m_Layer: 0
   m_Name: glass_panel_1_with_door
   m_TagString: Untagged
@@ -229,30 +229,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2cd1995e4029ff4d9725e4e2fefb9e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4789549335924532751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 141970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 8550196517075932063}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &8550196517075932063
+  PV: {fileID: 0}
+--- !u!114 &1824733146715421807
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -271,5 +249,28 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: character_nearby
   m_SynchronizeLayers:
-  - SynchronizeType: 0
+  - SynchronizeType: 1
     LayerIndex: 0
+--- !u!114 &5941506010261094935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 141970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 1824733146715421807}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
