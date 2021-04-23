@@ -64,6 +64,11 @@ public class Launcher : MonoBehaviourPunCallbacks
         MenuMan.Instance.OpenMenu("loading");
     }
 
+    public void CancelCreateRoom()
+    {
+        roomNameInputField.text = "";
+    }
+
     public override void OnJoinedRoom()
     {
         MenuMan.Instance.OpenMenu("room");
