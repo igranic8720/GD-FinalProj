@@ -4923,6 +4923,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2160177574996741013, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3042380832791750942, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
+      propertyPath: sceneViewId
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3042380833770879217, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
+      propertyPath: sceneViewId
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3042380834122724206, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
+      propertyPath: sceneViewId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3042380834476438336, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
+      propertyPath: sceneViewId
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3273233228793876680, guid: 9b69b2d6c36baa64b8bd6b552cfc9384, type: 3}
       propertyPath: m_Name
       value: Map

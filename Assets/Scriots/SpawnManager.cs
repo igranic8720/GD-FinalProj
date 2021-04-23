@@ -16,6 +16,21 @@ public class SpawnManager : MonoBehaviour
 
     public Transform GetSpawnpoint()
     {
-        return spawnpoints[Random.Range(0, spawnpoints.Length)].transform;
+        while (true)
+        {
+            bool invalid = false;
+            Transform pos = spawnpoints[Random.Range(0, spawnpoints.Length)].transform;
+            GameObject[] plys = GameObject.FindGameObjectsWithTag("Player");
+            foreach (GameObject ply in plys)
+            {
+                if (Vector3.Distance(ply.transform.position, pos.position) <= 4f)
+                {
+                    invalid = true;
+                    break;
+                }
+            }
+
+            if (invalid == false) return pos;
+        }
     }
 }
