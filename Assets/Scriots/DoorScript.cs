@@ -19,6 +19,7 @@ public class DoorScript : MonoBehaviour
             if (Vector3.Distance(py.transform.position, transform.position) <= 4f)
             {
                 animator.SetBool("character_nearby", true);
+                break;
             }
             else
             {

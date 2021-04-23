@@ -102,6 +102,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         {
             Die();
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
     }
     void FixedUpdate()
     {
