@@ -16,6 +16,7 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
         EventIncrementScore,
         EventAddKillMessage,
         EventLeave,
+        EventQuit,
         EVENT_MAX
     }
 
@@ -75,14 +76,39 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
                 break;
 
             case EventType.EventIncrementScore:
+                GameObject localCanvas = GameObject.FindGameObjectWithTag("LocalCanvas");
                 if ((int) data[0] == RoomPlayerInfo.roomPlayerInfo.GetLocalPlayer().ActorNumber)
                 {
                     RoomPlayerInfo.roomPlayerInfo.localScore++;
+                    if(RoomPlayerInfo.roomPlayerInfo.localScore >= 5)
+                    {
+                        localCanvas.GetComponent<Animator>().ResetTrigger("MatchWinTrig");
+                        localCanvas.GetComponent<Animator>().SetTrigger("MatchWinTrig");
+                        StartCoroutine(QuitCoroutine());
+                    }
+                    else
+                    {
+                        localCanvas.GetComponent<Animator>().ResetTrigger("RoundWinTrig");
+                        localCanvas.GetComponent<Animator>().SetTrigger("RoundWinTrig");
+                    }
                 }
                 else
                 {
                     RoomPlayerInfo.roomPlayerInfo.enemyScore++;
+                    if (RoomPlayerInfo.roomPlayerInfo.enemyScore >= 5)
+                    {
+                        localCanvas.GetComponent<Animator>().ResetTrigger("MatchLossTrig");
+                        localCanvas.GetComponent<Animator>().SetTrigger("MatchLossTrig");
+                        StartCoroutine(QuitCoroutine());
+                    }
+                    else
+                    {
+                        localCanvas.GetComponent<Animator>().ResetTrigger("RoundLossTrig");
+                        localCanvas.GetComponent<Animator>().SetTrigger("RoundLossTrig");
+                    }
                 }
+
+
 
                 RoomPlayerInfo.roomPlayerInfo.GetLocalPlayerManager().GetController().GetComponent<PlayerController>().playerDeathCounter.text = RoomPlayerInfo.roomPlayerInfo.localScore + " : " + RoomPlayerInfo.roomPlayerInfo.enemyScore;
 
@@ -98,10 +124,28 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
                 break;
 
             case EventType.EventLeave:
+                StartCoroutine(leaveCoroutine());
+                break;
+            case EventType.EventQuit:
                 if (PhotonNetwork.IsMasterClient) PhotonNetwork.DestroyAll();
                 PhotonNetwork.Disconnect();
                 SceneManager.LoadScene(0);
                 break;
+        }
+
+        IEnumerator leaveCoroutine()
+        {
+            GameObject localCanvas = GameObject.FindGameObjectWithTag("LocalCanvas");
+            localCanvas.GetComponent<Animator>().ResetTrigger("PlayerLeft");
+            localCanvas.GetComponent<Animator>().SetTrigger("PlayerLeft");
+            yield return new WaitForSeconds(6);
+            netController.SendEvent(NetEventController.EventType.EventQuit, ReceiverGroup.All);
+        }
+
+        IEnumerator QuitCoroutine()
+        {
+            yield return new WaitForSeconds(6);
+            netController.SendEvent(NetEventController.EventType.EventLeave, ReceiverGroup.All);
         }
     }
 }

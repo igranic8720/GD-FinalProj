@@ -113,7 +113,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             playerManager.Respawn();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Backspace))
         {
             NetEventController.netController.SendEvent(NetEventController.EventType.EventLeave, ReceiverGroup.All);
         }
