@@ -23,8 +23,7 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
     
         // EVENT:       EventRespawn (1)
         // DESC:        Simply respawn the targeted player.
-        // ARGUMENTS:   1
-        //              int spawnIndex - The index of the spawnpoint to use.
+        // ARGUMENTS:   0
 
         // EVENT:       EventIncrementScore (2)
         // DESC:        Increment the score for the selected player by 1.

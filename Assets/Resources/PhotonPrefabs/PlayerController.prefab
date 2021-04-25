@@ -426,9 +426,10 @@ MonoBehaviour:
   jumpForce: 300
   smoothTime: 0.15
   items:
-  - {fileID: 3625424663030750338}
+  - {fileID: 3551405105753876719}
   - {fileID: 8153327053079058599}
   playerDeathCounter: {fileID: 4578458641509093617}
+  itemIndex: 0
 --- !u!1 &263015171594309933
 GameObject:
   m_ObjectHideFlags: 0
@@ -513,9 +514,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 100
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -548,7 +549,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -790,9 +791,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 100
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -825,7 +826,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -6191,7 +6192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 366275407583910850}
-  - component: {fileID: 3625424663030750338}
+  - component: {fileID: 3551405105753876719}
   - component: {fileID: 8624573519726641060}
   m_Layer: 0
   m_Name: Rifle
@@ -6215,7 +6216,7 @@ Transform:
   m_Father: {fileID: 3958839794390874047}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3625424663030750338
+--- !u!114 &3551405105753876719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6224,7 +6225,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4853283290238466201}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 244199c2e534289409926ff4c4c97281, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b212dafcb5bb9040be85645941cd348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemInfo: {fileID: 11400000, guid: 907a80c09f8a3be47a4e937531302f14, type: 2}
