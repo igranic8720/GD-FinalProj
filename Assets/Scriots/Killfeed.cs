@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class Killfeed : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public GameObject KillFeedItemPrefab;
+    public void newKill(string shooter, string victim, float distance)
     {
-        
+        GameObject.Instantiate(KillFeedItemPrefab, gameObject.transform).GetComponent<KillFeedItem>().Setup(shooter, victim, distance);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if(gameObject.transform.childCount >= 5)
+        {
+            Destroy(gameObject.transform.GetChild(0).gameObject);
+        }
     }
 }

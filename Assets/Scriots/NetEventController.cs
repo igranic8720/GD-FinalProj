@@ -92,7 +92,10 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
             case EventType.EventAddKillMessage:
                 Player shooter = PhotonNetwork.CurrentRoom.GetPlayer((int) data[0]);
                 Player victim = PhotonNetwork.CurrentRoom.GetPlayer((int) data[1]);
-                float distance = (float) data[2];
+                float distance = (float)data[2];
+                GameObject KillFeed = GameObject.FindGameObjectWithTag("KillFeed");
+                KillFeed.GetComponent<Killfeed>().newKill(shooter.NickName, victim.NickName, distance);
+                Debug.Log(shooter.NickName + " killed " + victim.NickName);
                 break;
 
             case EventType.EventLeave:
