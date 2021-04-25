@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: 
   itemName: Pistol
-  damage: 25
+  damage: 10
+  shootSound: {fileID: 8300000, guid: 4290466c61f1a424c9eba789bbc74937, type: 3}

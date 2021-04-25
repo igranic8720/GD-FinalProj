@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -12,9 +14,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] private GameObject ui;
     [SerializeField] private GameObject cameraHolder;
     [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
-    [SerializeField] private Item[] items;
-
-    private int itemIndex;
+    [SerializeField] public Item[] items;
+    [SerializeField] public Text playerDeathCounter;
+    
+    public int itemIndex;
     private int previousItemIndex = -1;
 
     private float verticalLookRotation;
@@ -31,6 +34,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     private PlayerManager playerManager;
 
+    private float lastFired;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -44,12 +49,21 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         if (PV.IsMine)
         {
             EquipItem(0);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            playerDeathCounter.text = RoomPlayerInfo.roomPlayerInfo.localScore + " : " + RoomPlayerInfo.roomPlayerInfo.enemyScore;
         }
         else
         {
             Destroy(GetComponentInChildren<Camera>().gameObject);
             Destroy(rb);
             Destroy(ui);
+
+            // reposition guns on enemy player
+            foreach (Item gun in items)
+            {
+                gun.itemGameObject.transform.localPosition = new Vector3(0.3f, -0.12f, 0.8f);
+            }
         }
     }
 
@@ -59,6 +73,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         Look();
         Move();
         Jump();
+        WeaponFiring();
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -92,19 +107,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex - 1);
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            items[itemIndex].Use();
-        }
-
+        
         if (transform.position.y < -10f)
         {
-            Die();
+            playerManager.Respawn();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            NetEventController.netController.SendEvent(NetEventController.EventType.EventLeave, ReceiverGroup.All);
+        }
     }
+
     void FixedUpdate()
     {
         if (!PV.IsMine) return;
@@ -135,19 +149,34 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
     }
 
+    void WeaponFiring()
+    {
+        if (items[itemIndex] == null) return;
+        if (items[itemIndex].IsMultiFire()) // automatic weapon
+        {
+            if (!Input.GetMouseButton(0)) return;
+            if (Time.time - lastFired > 1f / 8f) // 8f is fire rate
+            {
+                lastFired = Time.time;
+                items[itemIndex].Use();
+            }
+        }
+        else
+        {
+            if (!Input.GetMouseButtonDown(0)) return;
+            items[itemIndex].Use();
+        }
+    }
+
     void EquipItem(int _index)
     {
         if (_index == previousItemIndex) return;
-
         itemIndex = _index;
-
         items[itemIndex].itemGameObject.SetActive(true);
-
         if (previousItemIndex != -1)
         {
             items[previousItemIndex].itemGameObject.SetActive(false);
         }
-
         previousItemIndex = itemIndex;
 
         if (PV.IsMine)
@@ -188,12 +217,31 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (currentHealth <= 0)
         {
-            Die();
+            // player just died, increment the other score and respawn everyone
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventIncrementScore, ReceiverGroup.All, 
+                new object[]
+                {
+                    RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayer().ActorNumber
+                });
+
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventAddKillMessage, ReceiverGroup.All, 
+                new object[]
+                {
+                    RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayer().ActorNumber, 
+                    RoomPlayerInfo.roomPlayerInfo.GetLocalPlayer().ActorNumber,
+                    Vector3.Distance(gameObject.transform.position, RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayerGO().transform.position)
+                });
+
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventRespawn, ReceiverGroup.All);
         }
     }
+    
 
-    void Die()
+    public PlayerManager GetPlayerManager()
     {
-        playerManager.Die();
+        return playerManager;
     }
 }
