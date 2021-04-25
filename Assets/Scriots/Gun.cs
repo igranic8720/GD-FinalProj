@@ -13,6 +13,7 @@ public abstract class Gun : Item
     public void FireEffects() // visual and sound effects when firing
     {
         muzzleFlashParticleSystem.Play();
+        gunFireAudioSource.clip = ((GunInfo) itemInfo).shootSound;
         gunFireAudioSource.Play();
     }
 }

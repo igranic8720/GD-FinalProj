@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
@@ -14,7 +15,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] private GameObject cameraHolder;
     [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] private Item[] items;
-    [SerializeField] private Text playerDeathCounter;
+    [SerializeField] public Text playerDeathCounter;
     
     private int itemIndex;
     private int previousItemIndex = -1;
@@ -48,7 +49,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             EquipItem(0);
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-            playerDeathCounter.text = "0 : 0";
+            playerDeathCounter.text = RoomPlayerInfo.roomPlayerInfo.localScore + " : " + RoomPlayerInfo.roomPlayerInfo.enemyScore;
         }
         else
         {
@@ -105,11 +106,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (transform.position.y < -10f)
         {
-            Die();
+            playerManager.Respawn();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q)) EndGame();
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            NetEventController.netController.SendEvent(NetEventController.EventType.EventLeave, ReceiverGroup.All);
+        }
     }
+
     void FixedUpdate()
     {
         if (!PV.IsMine) return;
@@ -193,64 +198,31 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (currentHealth <= 0)
         {
-            Die();
-        }
-    }
-
-    void EndGame()
-    {
-        if (PhotonNetwork.IsMasterClient) PhotonNetwork.DestroyAll();
-        PhotonNetwork.Disconnect();
-        SceneManager.LoadScene(0);
-    }
-
-    void Die()
-    {
-        playerManager.playerDeaths++;
-
-        Hashtable hash = new Hashtable
-        {
-            { "playerDeaths", playerManager.playerDeaths }
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-
-        PV.RPC("RPC_Respawn", RpcTarget.Others);
-
-        playerManager.Die();
-        Player[] players = PhotonNetwork.PlayerList;
-        foreach (Player pl in players)
-        {
-            if (!pl.IsLocal) playerDeathCounter.text = playerManager.playerDeaths + " : " + (int)pl.CustomProperties["playerDeaths"];
-        }
-    }
-
-    [PunRPC]
-    void RPC_Respawn()
-    {
-        GameObject[] go = GameObject.FindGameObjectsWithTag("Player");
-        foreach (var v in go)
-        {
-            if (v.GetComponent<PhotonView>().IsMine)
-            {
-                PhotonNetwork.Destroy(v);
-                playerManager.CreateController();
-                GameObject[] go2 = GameObject.FindGameObjectsWithTag("Player");
-                foreach (var v2 in go2)
+            // player just died, increment the other score and respawn everyone
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventIncrementScore, ReceiverGroup.All, 
+                new object[]
                 {
-                    Player[] players = PhotonNetwork.PlayerList;
-                    foreach (Player pl in players)
-                    {
-                        if (!pl.IsLocal && v2.GetComponent<PhotonView>().IsMine)
-                        {
-                            v2.GetComponent<PlayerController>().playerDeathCounter.text = playerManager.playerDeaths + " : " + (int)pl.CustomProperties["playerDeaths"];
-                        }  
-                    }
-                }
+                    RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayer().ActorNumber
+                });
 
-                break;
-            }
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventAddKillMessage, ReceiverGroup.All, 
+                new object[]
+                {
+                    RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayer().ActorNumber, 
+                    RoomPlayerInfo.roomPlayerInfo.GetLocalPlayer().ActorNumber,
+                    0.0f
+                });
+
+            NetEventController.netController.SendEvent(
+                NetEventController.EventType.EventRespawn, ReceiverGroup.All);
         }
-        
     }
+    
 
+    public PlayerManager GetPlayerManager()
+    {
+        return playerManager;
+    }
 }

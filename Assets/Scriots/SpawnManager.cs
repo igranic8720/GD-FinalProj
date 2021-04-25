@@ -7,30 +7,44 @@ public class SpawnManager : MonoBehaviour
     public static SpawnManager Instance;
 
     private Spawnpoint[] spawnpoints;
+    private int lastSpawnpoint;
 
     void Awake()
     {
         Instance = this;
         spawnpoints = GetComponentsInChildren<Spawnpoint>();
     }
+    
+    public Transform GetSpawnpoint(int spawnpoint)
+    {
+        return spawnpoints[spawnpoint].transform;
+    }
 
-    public Transform GetSpawnpoint()
+    public Transform GetRandomSpawnpoint()
     {
         while (true)
         {
-            bool invalid = false;
-            Transform pos = spawnpoints[Random.Range(0, spawnpoints.Length)].transform;
-            GameObject[] plys = GameObject.FindGameObjectsWithTag("Player");
-            foreach (GameObject ply in plys)
+            int spawnpt = Random.Range(0, spawnpoints.Length);
+            if (spawnpt != lastSpawnpoint)
             {
-                if (Vector3.Distance(ply.transform.position, pos.position) <= 4f)
+                GameObject[] plys = GameObject.FindGameObjectsWithTag("Player");
+                Transform pos = spawnpoints[spawnpt].transform;
+                bool valid = true;
+                foreach (GameObject ply in plys)
                 {
-                    invalid = true;
-                    break;
+                    if (Vector3.Distance(ply.transform.position, pos.position) <= 4f)
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (valid)
+                {
+                    lastSpawnpoint = spawnpt;
+                    return pos;
                 }
             }
-
-            if (invalid == false) return pos;
         }
     }
 }

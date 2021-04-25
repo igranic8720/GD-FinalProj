@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5853999873619131601}
   m_Layer: 0
   m_Name: PlayerManager
-  m_TagString: Untagged
+  m_TagString: PlayerManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66,4 +66,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea6d697bb7ef60a4b9eaf55e42ec3647, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerDeaths: 0
