@@ -9,6 +9,7 @@ public class RoomPlayerInfo : MonoBehaviour
     public static RoomPlayerInfo roomPlayerInfo;
 
     private PlayerManager localPlayerMgr;
+    private PlayerManager enemyPlayerMgr;
     private Player localPlayer;
     private Player enemyPlayer;
 
@@ -55,10 +56,41 @@ public class RoomPlayerInfo : MonoBehaviour
                 if (go.GetComponent<PhotonView>().IsMine)
                 {
                     localPlayerMgr = go.GetComponent<PlayerManager>();
+                    Debug.Log("Registered friendly pmgr.");
                 }
             }
         }
 
         return localPlayerMgr;
+    }
+
+    public PlayerManager GetEnemyPlayerManager()
+    {
+        if (enemyPlayerMgr == null)
+        {
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("PlayerManager"))
+            {
+                if (!go.GetComponent<PhotonView>().IsMine)
+                {
+                    enemyPlayerMgr = go.GetComponent<PlayerManager>();
+                    Debug.Log("Registered enemy pmgr.");
+                }
+            }
+        }
+
+        return enemyPlayerMgr;
+    }
+
+    public GameObject GetEnemyPlayerGO()
+    {
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            if (!go.GetComponent<PhotonView>().IsMine)
+            {
+                return go;
+            }
+        }
+
+        return null;
     }
 }

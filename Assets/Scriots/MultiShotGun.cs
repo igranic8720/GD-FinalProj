@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
-public class SingleShotGun : Gun
+public class MultiShotGun : Gun
 {
     public override void Use()
     {
@@ -18,7 +18,8 @@ public class SingleShotGun : Gun
 
     public override bool IsMultiFire()
     {
-        return false;
+        return true;
     }
+
     
 }

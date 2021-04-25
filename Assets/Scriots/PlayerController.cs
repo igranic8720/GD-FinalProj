@@ -14,10 +14,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] private GameObject ui;
     [SerializeField] private GameObject cameraHolder;
     [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
-    [SerializeField] private Item[] items;
+    [SerializeField] public Item[] items;
     [SerializeField] public Text playerDeathCounter;
     
-    private int itemIndex;
+    public int itemIndex;
     private int previousItemIndex = -1;
 
     private float verticalLookRotation;
@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     private float currentHealth = maxHealth;
 
     private PlayerManager playerManager;
+
+    private float lastFired;
 
     void Awake()
     {
@@ -56,6 +58,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             Destroy(GetComponentInChildren<Camera>().gameObject);
             Destroy(rb);
             Destroy(ui);
+
+            // reposition guns on enemy player
+            foreach (Item gun in items)
+            {
+                gun.itemGameObject.transform.localPosition = new Vector3(0.3f, -0.12f, 0.8f);
+            }
         }
     }
 
@@ -65,6 +73,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         Look();
         Move();
         Jump();
+        WeaponFiring();
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -98,12 +107,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex - 1);
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            items[itemIndex].Use();
-        }
-
+        
         if (transform.position.y < -10f)
         {
             playerManager.Respawn();
@@ -145,19 +149,34 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
     }
 
+    void WeaponFiring()
+    {
+        if (items[itemIndex] == null) return;
+        if (items[itemIndex].IsMultiFire()) // automatic weapon
+        {
+            if (!Input.GetMouseButton(0)) return;
+            if (Time.time - lastFired > 1f / 8f) // 8f is fire rate
+            {
+                lastFired = Time.time;
+                items[itemIndex].Use();
+            }
+        }
+        else
+        {
+            if (!Input.GetMouseButtonDown(0)) return;
+            items[itemIndex].Use();
+        }
+    }
+
     void EquipItem(int _index)
     {
         if (_index == previousItemIndex) return;
-
         itemIndex = _index;
-
         items[itemIndex].itemGameObject.SetActive(true);
-
         if (previousItemIndex != -1)
         {
             items[previousItemIndex].itemGameObject.SetActive(false);
         }
-
         previousItemIndex = itemIndex;
 
         if (PV.IsMine)
@@ -212,7 +231,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 {
                     RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayer().ActorNumber, 
                     RoomPlayerInfo.roomPlayerInfo.GetLocalPlayer().ActorNumber,
-                    0.0f
+                    Vector3.Distance(gameObject.transform.position, RoomPlayerInfo.roomPlayerInfo.GetEnemyPlayerGO().transform.position)
                 });
 
             NetEventController.netController.SendEvent(
