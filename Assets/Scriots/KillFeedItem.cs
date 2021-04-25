@@ -10,6 +10,6 @@ public class KillFeedItem : MonoBehaviour
 
     public void Setup(string shooter, string victim, float distance)
     {
-        text.text = DateTime.Now.ToString() + shooter + " killed " + victim + " (" + (int)distance + " m)";
+        text.text = DateTime.Now.ToString() + " "+ shooter + " killed " + victim + " (" + (int)distance + " m)";
     }
 }

@@ -119,7 +119,25 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
                 Player victim = PhotonNetwork.CurrentRoom.GetPlayer((int) data[1]);
                 float distance = (float)data[2];
                 GameObject KillFeed = GameObject.FindGameObjectWithTag("KillFeed");
-                KillFeed.GetComponent<Killfeed>().newKill(shooter.NickName, victim.NickName, distance);
+                string shooterNick = "";
+                string victimNick = "";
+                if (PhotonNetwork.LocalPlayer.NickName == shooter.NickName)
+                {
+                    shooterNick = "You";
+                }
+                else
+                {
+                    shooterNick = shooter.NickName;
+                }
+                if (PhotonNetwork.LocalPlayer.NickName == victim.NickName)
+                {
+                    victimNick = "You";
+                }
+                else
+                {
+                    victimNick = victim.NickName;
+                }
+                KillFeed.GetComponent<Killfeed>().newKill(shooterNick, victimNick, distance);
                 Debug.Log(shooter.NickName + " killed " + victim.NickName);
                 break;
 
