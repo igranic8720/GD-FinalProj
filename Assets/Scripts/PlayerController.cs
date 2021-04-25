@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Lean.Gui;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -24,7 +25,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     private bool grounded;
     private Vector3 smoothMoveVelocity;
     private Vector3 moveAmount;
-
     private Rigidbody rb;
 
     private PhotonView PV;
@@ -70,41 +70,47 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     void Update()
     {
         if (!PV.IsMine) return;
-        Look();
-        Move();
-        Jump();
-        WeaponFiring();
-
-        for (int i = 0; i < items.Length; i++)
+        if (GameObject.FindGameObjectWithTag("Pause").GetComponent<LeanWindow>().On == false)
         {
-            if (Input.GetKeyDown((i + 1).ToString()))
-            {
-                EquipItem(i);
-                break;
-            }
-        }
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            ui.SetActive(true);
+            Look();
+            Move();
+            Jump();
+            WeaponFiring();
 
-        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
-        {
-            if (itemIndex >= items.Length - 1)
+            for (int i = 0; i < items.Length; i++)
             {
-                EquipItem(0);
+                if (Input.GetKeyDown((i + 1).ToString()))
+                {
+                    EquipItem(i);
+                    break;
+                }
             }
-            else
-            {
-                EquipItem(itemIndex + 1);
-            }
-        }
 
-        if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
-        {
-            if (itemIndex <= 0)
+            if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
             {
-                EquipItem(items.Length - 1);
+                if (itemIndex >= items.Length - 1)
+                {
+                    EquipItem(0);
+                }
+                else
+                {
+                    EquipItem(itemIndex + 1);
+                }
             }
-            else
+
+            if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
             {
-                EquipItem(itemIndex - 1);
+                if (itemIndex <= 0)
+                {
+                    EquipItem(items.Length - 1);
+                }
+                else
+                {
+                    EquipItem(itemIndex - 1);
+                }
             }
         }
         
@@ -113,9 +119,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             playerManager.Respawn();
         }
 
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            NetEventController.netController.SendEvent(NetEventController.EventType.EventLeave, ReceiverGroup.All);
+            ui.SetActive(false);
+            GameObject.FindGameObjectWithTag("Pause").GetComponent<LeanWindow>().TurnOn();
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 
