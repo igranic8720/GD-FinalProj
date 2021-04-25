@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -24,7 +25,16 @@ public class SpawnManager : MonoBehaviour
     {
         while (true)
         {
-            int spawnpt = Random.Range(0, spawnpoints.Length);
+            int spawnpt = 0;
+            if (PhotonNetwork.IsMasterClient)
+            {
+                spawnpt = Random.Range(0, 9);
+            }
+            else
+            {
+                spawnpt = Random.Range(9, spawnpoints.Length);
+            }
+
             if (spawnpt != lastSpawnpoint)
             {
                 GameObject[] plys = GameObject.FindGameObjectsWithTag("Player");
