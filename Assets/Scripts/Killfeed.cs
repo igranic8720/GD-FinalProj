@@ -1,3 +1,6 @@
+// FILE:    KillFeed.cs
+// DATE:    4/25/2021
+// DESC:    This file facilitates the spawning of kill feed line items.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
