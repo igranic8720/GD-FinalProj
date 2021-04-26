@@ -1,3 +1,7 @@
+// FILE:    PlayerController.cs
+// DATE:    4/25/2021
+// DESC:    This file houses the main player interaction.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,50 +15,57 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {
-    [SerializeField] private Image healthbarImage;
-    [SerializeField] private GameObject ui;
-    [SerializeField] private GameObject cameraHolder;
-    [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
-    [SerializeField] public Item[] items;
-    [SerializeField] public Text playerDeathCounter;
+    [SerializeField] private Image healthbarImage; // image of the healthbar.
+    [SerializeField] private GameObject ui; // ui canvas
+    [SerializeField] private GameObject cameraHolder; // the camera
+    [SerializeField] private float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime; // used for movement
+    [SerializeField] public Item[] items; // item holding array
+    [SerializeField] public Text playerDeathCounter; // score counter
     
-    public int itemIndex;
-    private int previousItemIndex = -1;
+    public int itemIndex; // currently held item
+    private int previousItemIndex = -1; // previously held item
 
-    private float verticalLookRotation;
-    private bool grounded;
-    private Vector3 smoothMoveVelocity;
-    private Vector3 moveAmount;
-    private Rigidbody rb;
+    private float verticalLookRotation; // used with movement controller
+    private bool grounded; // if the player is on the ground (uses playergroundcheck.cs)
+    private Vector3 smoothMoveVelocity; // used with movement controller
+    private Vector3 moveAmount; // used with movement controller
+    private Rigidbody rb; // this player's rigidbody
 
-    private PhotonView PV;
+    private PhotonView PV; // this player's photonview
 
-    private const float maxHealth = 100f;
-    private float currentHealth = maxHealth;
+    private const float maxHealth = 100f; // the highest possible health
+    private float currentHealth = maxHealth; // current player health
 
-    private PlayerManager playerManager;
+    private PlayerManager playerManager; // manager managing this player
 
-    private float lastFired;
+    private float lastFired; // used for firing weps
 
+    // FUNCTION:    Awake
+    // DESC:        Sets required vars
+    // PARAMETERS:  0
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        PV = GetComponent<PhotonView>();
+        rb = GetComponent<Rigidbody>(); // sets rigidbody
+        PV = GetComponent<PhotonView>(); // sets photonview
 
-        playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
+        playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>(); // gets the playermanager
     }
 
+    // FUNCTION:    Start
+    // DESC:        Sets required player components, deletes if not necessary
+    // PARAMETERS:  0
     void Start()
     {
         if (PV.IsMine)
         {
-            EquipItem(0);
-            Cursor.visible = false;
+            EquipItem(0); // if mine, start with weapon
+            Cursor.visible = false; // cursor FPS mode
             Cursor.lockState = CursorLockMode.Locked;
             playerDeathCounter.text = RoomPlayerInfo.roomPlayerInfo.localScore + " : " + RoomPlayerInfo.roomPlayerInfo.enemyScore;
         }
         else
         {
+            // if not me, destroy anything not needed
             Destroy(GetComponentInChildren<Camera>().gameObject);
             Destroy(rb);
             Destroy(ui);
@@ -67,6 +78,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    Update
+    // DESC:        Manages things that happen every frame.
+    // PARAMETERS:  0
     void Update()
     {
         if (!PV.IsMine) return;
@@ -80,7 +94,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             Jump();
             WeaponFiring();
 
-            for (int i = 0; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++) // switch weapons if corresponding key is pressed
             {
                 if (Input.GetKeyDown((i + 1).ToString()))
                 {
@@ -89,6 +103,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 }
             }
 
+            // mouse wheel scrolling change weps
             if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
             {
                 if (itemIndex >= items.Length - 1)
@@ -101,6 +116,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 }
             }
 
+            // mouse wheel scrolling change weps
             if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
             {
                 if (itemIndex <= 0)
@@ -114,11 +130,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             }
         }
         
+        // respawn if fell into void
         if (transform.position.y < -10f)
         {
             playerManager.Respawn();
         }
 
+        // pause game on tab
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             ui.SetActive(false);
@@ -128,18 +146,27 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    FixedUpdate
+    // DESC:        Manages movement
+    // PARAMETERS:  0
     void FixedUpdate()
     {
         if (!PV.IsMine) return;
         rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
     }
 
+    // FUNCTION:    Move
+    // DESC:        Manages movement
+    // PARAMETERS:  0
     void Move()
     {
         Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
         moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);
     }
 
+    // FUNCTION:    Jump
+    // DESC:        Handles jumping
+    // PARAMETERS:  0
     void Jump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && grounded)
@@ -148,6 +175,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    Look
+    // DESC:        Handles mouse movement
+    // PARAMETERS:  0
     void Look()
     {
         transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
@@ -158,6 +188,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
     }
 
+    // FUNCTION:    WeaponFiring
+    // DESC:        Handles firing weapons
+    // PARAMETERS:  0
     void WeaponFiring()
     {
         if (items[itemIndex] == null) return;
@@ -177,18 +210,22 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    EquipItem
+    // DESC:        Switches weapons
+    // PARAMETERS:  1
+    //              int _index: The new weapon index
     void EquipItem(int _index)
     {
-        if (_index == previousItemIndex) return;
-        itemIndex = _index;
-        items[itemIndex].itemGameObject.SetActive(true);
+        if (_index == previousItemIndex) return; // switching to same wep?
+        itemIndex = _index; // set new index
+        items[itemIndex].itemGameObject.SetActive(true); // see the new eep
         if (previousItemIndex != -1)
         {
             items[previousItemIndex].itemGameObject.SetActive(false);
         }
         previousItemIndex = itemIndex;
 
-        if (PV.IsMine)
+        if (PV.IsMine) // sync new wep switch over pun
         {
             Hashtable hash = new Hashtable
             {
@@ -198,6 +235,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    OnPlayerPropertiesUpdate
+    // DESC:        Called on hashtable properties change; used to update player weapons.
+    // PARAMETERS:  2
+    //              Player targetPlayer: Target player
+    //              Hashtable changedProps: all the changed properties
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
         if (!PV.IsMine && targetPlayer == PV.Owner)
@@ -206,23 +248,35 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    // FUNCTION:    SetGroundedState
+    // DESC:        Sets the ground state
+    // PARAMETERS:  1
+    //              bool _grounded: new ground state
     public void SetGroundedState(bool _grounded)
     {
         grounded = _grounded;
     }
 
+    // FUNCTION:    TakeDamage
+    // DESC:        Handles taking damage
+    // PARAMETERS:  1
+    //              float damage: how much damage to take
     public void TakeDamage(float damage)
     {
         PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
     }
 
+    // FUNCTION:    RPC_TakeDamage
+    // DESC:        Handles taking damage
+    // PARAMETERS:  1
+    //              float damage: how much damage to take
     [PunRPC]
     void RPC_TakeDamage(float damage)
     {
         if (!PV.IsMine) return;
 
-        currentHealth -= damage;
-        healthbarImage.fillAmount = currentHealth / maxHealth;
+        currentHealth -= damage; // decrement health
+        healthbarImage.fillAmount = currentHealth / maxHealth; // adjust hp bar
 
         if (currentHealth <= 0)
         {
@@ -248,9 +302,5 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
     
-
-    public PlayerManager GetPlayerManager()
-    {
-        return playerManager;
-    }
+    
 }

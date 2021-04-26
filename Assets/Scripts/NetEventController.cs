@@ -1,3 +1,7 @@
+// FILE:    PlayerController.cs
+// DATE:    4/25/2021
+// DESC:    This file facilitates network event interaction.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 public class NetEventController : MonoBehaviour, IOnEventCallback
 {
-    public static NetEventController netController;
+    public static NetEventController netController; // singleton instance
 
     public enum EventType
     {
@@ -43,32 +47,51 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
         // ARGUMENTS:   0
     */
 
+    // FUNCTION:    Awake
+    // DESC:        Sets this singleton instance.
+    // PARAMETERS:  0
     void Awake()
     {
         netController = this;
     }
 
+    // FUNCTION:    OnEnable
+    // DESC:        Adds the callback necessary
+    // PARAMETERS:  0
     private void OnEnable()
     {
         PhotonNetwork.AddCallbackTarget(this);
     }
 
+    // FUNCTION:    OnDisable
+    // DESC:        Removes the callback necessary
+    // PARAMETERS:  0
     private void OnDisable()
     {
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
+    // FUNCTION:    SendEvent
+    // DESC:        Sends an event.
+    // PARAMETERS:  3
+    //              EventType type: The type of event.
+    //              ReceiverGroup recipients: Who receives the event
+    //              object[] data: the data to send
     public void SendEvent(EventType type, ReceiverGroup recipients, object[] data = null)
     {
         PhotonNetwork.RaiseEvent((byte) type, data, new RaiseEventOptions { Receivers = recipients }, SendOptions.SendReliable);
     }
 
+    // FUNCTION:    OnEvent
+    // DESC:        Handles receving an event
+    // PARAMETERS:  1
+    //              EventData photonEvent: An event
     public void OnEvent(EventData photonEvent)
     {
-        if ((EventType)photonEvent.Code >= EventType.EVENT_MAX) return;
+        if ((EventType)photonEvent.Code >= EventType.EVENT_MAX) return; // return if not our event
 
-        EventType type = (EventType) photonEvent.Code;
-        object[] data = (object[]) photonEvent.CustomData;
+        EventType type = (EventType) photonEvent.Code; // cast event type
+        object[] data = (object[]) photonEvent.CustomData; // get all data
         switch (type) // get the type of event
         {
             case EventType.EventRespawn:
@@ -151,6 +174,9 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
                 break;
         }
 
+        // FUNCTION:    leaveCoroutine
+        // DESC:        Leaves canvas coroutine
+        // PARAMETERS:  0
         IEnumerator leaveCoroutine()
         {
             GameObject localCanvas = GameObject.FindGameObjectWithTag("LocalCanvas");
@@ -160,6 +186,9 @@ public class NetEventController : MonoBehaviour, IOnEventCallback
             netController.SendEvent(NetEventController.EventType.EventQuit, ReceiverGroup.All);
         }
 
+        // FUNCTION:    QuitCoroutine
+        // DESC:        Quits canvas coroutine
+        // PARAMETERS:  0
         IEnumerator QuitCoroutine()
         {
             yield return new WaitForSeconds(6);
